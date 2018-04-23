@@ -1,13 +1,66 @@
 
+var allCsvs = [
+  'AllsWellThatEndsWell',
+  'AntonyandCleopatra',
+  'AsYouLikeIt',
+  'ComedyofErrors',
+  'Coriolanus',
+  'Cymbeline',
+  'Hamlet',
+  'HenryIV,part1',
+  'HenryIV,part2',
+  'HenryV',
+  'HenryVI,part1',
+  'HenryVI,part2',
+  'HenryVIII',
+  'JuliusCaesar',
+  'KingJohn',
+  'KingLear',
+  'LovesLaboursLost',
+  'Macbeth',
+  'MeasureforMeasure',
+  'MerchantofVenice',
+  'MerryWivesofWindsor',
+  'MidsummerNightsDream',
+  'MuchAdoAboutNothing',
+  'Othello',
+  'Pericles',
+  'RichardII',
+  'RichardIII',
+  'RomeoandJuliet',
+  'TamingoftheShrew',
+  'TheTempest',
+  'TimonofAthens',
+  'TitusAndronicus',
+  'TroilesandCressida',
+  'TwelfthNight',
+  'TwoGentlemenofVerona',
+  'WintersTale'
+];
+
+var all = [];
+
 $(document).ready(function() {
 
-  var all = [];
+  // var all = [];
 
   // Phew, we now we the csv in its original user-friendly format..:
   console.log('jq');
+
+  // allCsvs.forEach(function(csv) {
+  //   getPlay("csvs/" + csv + ".csv");
+  // });
+
+  getPlay('csvs/KingLear.csv');
+
+});
+
+
+
+function getPlay(url) {
   $.ajax({
     type: "GET",
-    url: "csvs/Hamlet.csv",
+    url: url,
     dataType: "text"
   }).done(function(data) {
     // OOOH duh we can't just split on this, because that will facture all lines containing a comma:
@@ -40,10 +93,16 @@ $(document).ready(function() {
     });
 
     console.log(all);
+
+
+    // do not forget to clear out:
+    all = [];
   }).catch(function(err) {
     console.log(err);
   });
-});
+}
+
+
 
 // Line 8 is the title.
 
