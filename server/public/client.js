@@ -41,20 +41,14 @@ var allCsvs = [
 var all = [];
 
 $(document).ready(function() {
-
-  // var all = [];
-
-  // Phew, we now we the csv in its original user-friendly format..:
-  console.log('jq');
-
-  // allCsvs.forEach(function(csv) {
-  //   getPlay("csvs/" + csv + ".csv");
+  // allCsvs.forEach(function(play) {
+  //   getPlay("csvs/" + play + ".csv");
   // });
 
   getPlay('csvs/KingLear.csv');
-
 });
 
+// One strategy would be to group up all the speakers for each play BEFORE going through lines. I don't know that this would add too much efficiency. Either way we have to look through the DB each time for that speaker's ID.
 
 
 function getPlay(url) {
@@ -63,36 +57,46 @@ function getPlay(url) {
     url: url,
     dataType: "text"
   }).done(function(data) {
-    // OOOH duh we can't just split on this, because that will facture all lines containing a comma:
     var arr = data.split("\n"); // wow that was a shot in the dark.
-    console.log(arr);
+    // console.log(arr);
     arr.forEach(function(line) {
-      // all.push(line.split())
       var first = line.indexOf(',');
       var last = line.lastIndexOf(',');
       var ind = line.slice(0, first);
-      // var ind = line.slice(0, first); // index (we won't be using it)
-      // console.log(ind);
-      var rest = line.slice(first + 1);
-      // console.log(rest);
-      var second = rest.indexOf(',');
 
+      var rest = line.slice(first + 1);
+      var second = rest.indexOf(',');
       var trueIndex = rest.slice(0, second);
 
-      // var text = line.slice(0, last - ind.length());
       var text = line.slice(first + 1, last);
       text = text.slice(text.indexOf(',') + 1);
       var speaker = line.slice(last + 1);
 
-      all.push({
+      var info = {
         index: ind,
         trueIndex: trueIndex,
         text: text,
         speaker: speaker,
+      };
+
+      all.push(info);
+
+      // could just dispatch with 'all' altogether and just Post directly to DB.
+
+      $.ajax({
+        type: 'POST',
+        url: "/postLine",
+        data: info
       });
     });
 
     console.log(all);
+    // do stuff with all:
+
+
+
+
+
 
 
     // do not forget to clear out:
@@ -104,11 +108,8 @@ function getPlay(url) {
 
 
 
-// Line 8 is the title.
 
-// Line 10 says '1.1.1'
 
-// Ok it's already formatted in a friendly fashion: each row (indexed by unique ID) has a line index, a text, and a speaker.
 
 
 
