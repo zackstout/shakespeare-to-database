@@ -43,6 +43,33 @@ var pool = new pg.Pool(config);
 // else, grab titleId from DB.
 
 
+
+app.post('/playTitles', function(req, res) {
+  pool.connect(function(err, db, done) {
+    if (err) {
+      console.log(err);
+    } else {
+      var queryText = 'INSERT INTO "plays" ("name") VALUES ($1);';
+      db.query(queryText, [req.body.title], function (errorMakingQuery, result) {
+        done();
+        if (errorMakingQuery) {
+          console.log('Error with country GET', errorMakingQuery);
+          res.sendStatus(501);
+        } else {
+          res.sendStatus(201);
+        }
+      });
+    }
+  });
+});
+
+
+
+
+
+
+
+
 app.get('/title/:name', function(req, res) {
   pool.connect(function(err, db, done) {
     if (err) {
