@@ -45,7 +45,7 @@ $(document).ready(function() {
   //   getPlay("csvs/" + play + ".csv");
   // });
 
-  getPlay('csvs/KingLear.csv');
+  getPlay('csvs/WintersTale.csv');
 });
 
 // One strategy would be to group up all the speakers for each play BEFORE going through lines. I don't know that this would add too much efficiency. Either way we have to look through the DB each time for that speaker's ID.
@@ -59,6 +59,10 @@ function getPlay(url) {
   }).done(function(data) {
     var arr = data.split("\n"); // wow that was a shot in the dark.
     // console.log(arr);
+    var titleprep = arr[2].slice(arr[2].indexOf(',') + 1);
+    var title = titleprep.slice(titleprep.indexOf(',') + 1, titleprep.length - 1);
+    console.log(title);
+
     arr.forEach(function(line) {
       var first = line.indexOf(',');
       var last = line.lastIndexOf(',');
@@ -73,6 +77,7 @@ function getPlay(url) {
       var speaker = line.slice(last + 1);
 
       var info = {
+        title: title,
         index: ind,
         trueIndex: trueIndex,
         text: text,
@@ -81,14 +86,105 @@ function getPlay(url) {
 
       all.push(info);
 
-      // could just dispatch with 'all' altogether and just Post directly to DB.
+
+
+      // *****Just send info along with TITLE and send the whole array for each CSV to the server!
+      // Eh whatever, we can just go line by line, I don't think it matters too much either way. It will be more inefficient, but we only have to do it once.
+
+
+
+      // Dispatch with 'all' altogether and just Post directly to DB.
+
+
+      // $.ajax({
+      //   type: "POST",
+      //   url: "/postLine",
+      //   data: info
+      // }).done(function(res) {
+      //   console.log(res);
+      // }).catch(function(err) {
+      //   console.log(err);
+      // });
+
+
 
       $.ajax({
-        type: 'POST',
-        url: "/postLine",
-        data: info
+        type: 'GET',
+        url: "/title/" + info.title,
+      }).done(function(res1) {
+        // console.log(res);
+
+        // Do we have the play yet?
+        var playId;
+        var speakerId;
+
+        if (res1.length === 0) {
+          $.ajax({
+            type: 'POST',
+            url: "/title",
+            data: info.title
+          }).done(function(res2) {
+            console.log(res2);
+            playId = res2;
+
+            // we now have playId.
+            $.ajax({
+              type: 'GET',
+              url: "/speaker/" + info.speaker + "/" + playId
+            }).done(function(res3) {
+              console.log(res3);
+              if (res3.length === 0) {
+                $.ajax({
+                  type: "POST",
+                  url: "/speaker",
+                  data: {
+                    name: info.speaker,
+                    play_id: playId
+                  }
+                }).done(function(res4) {
+                  speakerId = res4;
+                });
+              } else {
+                speakerId = res3[0].id;
+              }
+            });
+          });
+        } else {
+          console.log(res1);
+          playId = res1[0].id;
+          
+          // we now have playId.
+          $.ajax({
+            type: 'GET',
+            url: "/speaker/" + info.speaker + "/" + playId
+          }).done(function(res5) {
+            console.log(res5);
+            if (res5.length === 0) {
+              $.ajax({
+                type: "POST",
+                url: "/speaker",
+                data: {
+                  name: info.speaker,
+                  play_id: playId
+                }
+              }).done(function(res6) {
+                speakerId = res6;
+              });
+            } else {
+              speakerId = res5[0].id;
+            }
+          });
+        }
+
+
+
+        // we now have SpeakerId.
+        console.log(playId, speakerId);
       });
-    });
+
+
+
+    }); // end forEach over lines
 
     console.log(all);
     // do stuff with all:
