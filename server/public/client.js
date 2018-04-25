@@ -39,6 +39,7 @@ var allCsvs = [
 ];
 
 var all = [];
+// var allSpeakersAllPlays = {};
 
 $(document).ready(function() {
   // allCsvs.forEach(function(play) {
@@ -76,6 +77,7 @@ function insertLines() {
 
 function getPlay(url) {
   var title;
+  var allSpeakers = [];
 
   $.ajax({
     type: "GET",
@@ -89,6 +91,8 @@ function getPlay(url) {
     console.log(title);
 
     arr.forEach(function(line) {
+
+      // var prevSpeaker = '';
       var first = line.indexOf(',');
       var last = line.lastIndexOf(',');
       var ind = line.slice(0, first);
@@ -100,6 +104,11 @@ function getPlay(url) {
       var text = line.slice(first + 1, last);
       text = text.slice(text.indexOf(',') + 1);
       var speaker = line.slice(last + 1);
+
+      if (!allSpeakers.includes(speaker)) {
+        // prevSpeaker = speaker;
+        allSpeakers.push(speaker);
+      }
 
       var info = {
         title: title,
@@ -209,28 +218,84 @@ function getPlay(url) {
 
 
 
+      // Wow, truly a wildly inefficient way to solve this problem: (save each name for each line...and check it against DB of plays. Damn).
+      // Post all speakers: Note, must be *inside* the forEach.
+      // $.ajax({
+      //   type: "GET",
+      //   url: "title/" + title
+      // }).done(function(taco) {
+      //   console.log(taco);
+      //   var playId = taco[0].id;
+      //   $.ajax({
+      //     type: "POST",
+      //     url: "speakerNames",
+      //     data: {
+      //       // that's really weird -- this being global (almost) made this save blanks for speaker names???
+      //       speaker: speaker,
+      //       playId: playId
+      //     }
+      //   }).done(function(allo) {
+      //     console.log(allo);
+      //   }).catch(function(err) {
+      //     console.log(err);
+      //   });
+      // }).catch(function(err) {
+      //   console.log(err);
+      // });
+
+
+
+
     }); // end forEach over lines
 
     console.log(all);
+    allSpeakers.splice(0, 2);
+
+    console.log(title, allSpeakers);
+
+
     // do stuff with all:
 
+    // POST TITLES TO DB:
+    // $.ajax({
+    //   type: "POST",
+    //   url: "playTitles",
+    //   data: {
+    //     title: title
+    //   }
+    // }).done(function(taco) {
+    //   console.log(taco);
+    // }).catch(function(err) {
+    //   console.log(err);
+    // });
 
-    $.ajax({
-      type: "POST",
-      url: "playTitles",
-      data: {
-        title: title
-      }
-    }).done(function(taco) {
-      console.log(taco);
-    }).catch(function(err) {
-      console.log(err);
-    });
+    // POST SPEAKERS TO DB:
+    // allSpeakers.forEach(function(speaker) {
+    //   $.ajax({
+    //     type: "POST",
+    //     url: "speakerNames",
+    //     data: {
+    //       title: title,
+    //       name: speaker
+    //     }
+    //   }).done(function(taco) {
+    //     console.log(taco);
+    //   }).catch(function(err) {
+    //     console.log(err);
+    //   });
+    // });
+
+
+
+
+
+
 
 
 
     // do not forget to clear out:
     all = [];
+    allSpeakers = [];
 
 
   }).catch(function(err) {

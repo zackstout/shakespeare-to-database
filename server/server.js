@@ -29,21 +29,10 @@ var pool = new pg.Pool(config);
 // No, we're not overthinking it.
 // If speakers table contains the speaker (*constrained to this play*) then add line keyed to the speaker; OTHERWISE add speaker, and add line keyed to speaker.
 
-// ***PROBLEM***: What if client-side requests trigger server in wonky order, so that we can't use order of lines to determine speaker of each?
-// Wait that won't matter -- we don't care about order. We have each speaker attached to each line.
 
 
-
-
-
-// Global var for current play. (or rather its index in the DB)
-// for a new CSV:
-// if line number is 8 or whatever, grab the title.
-
-// else, grab titleId from DB.
-
-
-
+// Used to post all play Titles to DB:
+// Nice won't let us post one that's there because we put in the UNIQUE constraint.
 app.post('/playTitles', function(req, res) {
   pool.connect(function(err, db, done) {
     if (err) {
@@ -62,6 +51,71 @@ app.post('/playTitles', function(req, res) {
     }
   });
 });
+
+// So odd, kind of works, but mysteriously stops occasionally. If you just keep restarting server you'll eventually get them all.....
+// Post speaker names (I split them on the client side into like 30-size arrays for each play):
+app.post('/speakerNames', function(req, res) {
+  console.log(req.body);
+  pool.connect(function(err, db, done) {
+
+    var queryText;
+    if (err) {
+      console.log(err);
+    } else {
+      queryText = 'SELECT "id" FROM "plays" WHERE "plays"."name" = $1;';
+      db.query(queryText, [req.body.title], function(err, result) {
+        if (err) {
+          console.log(err);
+          res.sendStatus(501);
+        } else {
+          // console.log(result);
+          var id = result.rows[0].id;
+
+          queryText = 'SELECT * FROM "speakers" WHERE "name" = $1 AND "play_id" = $2;';
+          db.query(queryText, [req.body.name, id], function (errorMakingQuery, result) {
+            if (errorMakingQuery) {
+              console.log('Error with country GET', errorMakingQuery);
+              res.sendStatus(501);
+            } else {
+              if (result.rows.length === 0) {
+                queryText = 'INSERT INTO "speakers" ("name", "play_id") VALUES ($1, $2);';
+                db.query(queryText, [req.body.name, id], function (errorMakingQuery, result) {
+                  done();
+                  if (errorMakingQuery) {
+                    console.log('Error with country GET', errorMakingQuery);
+                    res.sendStatus(501);
+                  } else {
+                    res.sendStatus(201);
+                  }
+                });
+              } else {
+                console.log(result.rows);
+
+                res.sendStatus(201);
+              }
+
+            }
+          });
+          // res.sendStatus(201);
+        }
+      });
+
+    }
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -189,21 +243,23 @@ app.post('/line', function(req, res) {
             // res.sendStatus(501);
           } else {
             var titleId;
-            if (result.rows.length === 0) {
-              // Insert new title. RETURN new id.
-              queryText = 'INSERT INTO "plays" ("name") VALUES ($1) RETURNING "id" as id;';
-              db.query(queryText, [req.body.title], function(err2, result2) {
-                if (err2) {
-                  console.log('err2', err2);
-                  // res.sendStatus(501);
-                } else {
-                  titleId = result2.rows[0].id;
-                }
-              });
-            } else {
+            // if (result.rows.length === 0) {
+            //   // Insert new title. RETURN new id.
+            //   queryText = 'INSERT INTO "plays" ("name") VALUES ($1) RETURNING "id" as id;';
+            //   db.query(queryText, [req.body.title], function(err2, result2) {
+            //     if (err2) {
+            //       console.log('err2', err2);
+            //       // res.sendStatus(501);
+            //     } else {
+            //       titleId = result2.rows[0].id;
+            //     }
+            //   });
+            // } else {
+
+
               titleId = result.rows[0].id;
               // console.log(titleId);
-            }
+            // }
             console.log('titleId is ', titleId);
 
             queryText = 'SELECT * FROM "speakers" JOIN "plays" ON "speakers"."play_id" = "plays"."id" WHERE "speakers"."name" = $1 AND "plays"."id" = $2;';
