@@ -31,6 +31,39 @@ var pool = new pg.Pool(config);
 
 
 
+app.get('/onePlay/:title', function(req, res) {
+  pool.connect(function(err, db, done) {
+    if (err) {
+      console.log(err);
+    } else {
+      var queryText = 'SELECT * FROM "' + req.params.title + '" ORDER BY act, scene, "lineNo";'; // Odd, if lineNo not in quotes, it reads it as all-lowercase
+      db.query(queryText, [], function (errorMakingQuery, result) {
+        done();
+        if (errorMakingQuery) {
+          console.log('Error with country GET', errorMakingQuery);
+          res.sendStatus(501);
+        } else {
+          res.send(result.rows);
+        }
+      });
+    }
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Ugh just doing it in one table for now:
 app.post('/allLines', function(req, res) {
