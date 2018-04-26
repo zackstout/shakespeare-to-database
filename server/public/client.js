@@ -38,6 +38,25 @@ var allCsvs = [
   'WintersTale'
 ];
 
+var string = 'hello hi there';
+var regex = /hi/;
+var exists = regex.test(string); // returns boolean
+console.log(exists);
+
+var alsoExists = string.match(regex); // returns array of matches. Use g flag to match all matches. Use i flag to match case-insensitive.
+
+// G flag and groups don't play nice together -- you need to bring in r.exec(s), and call it *until* it returns null.
+
+// Can also use string.split(regex) and string.replace(regex, string)
+
+
+
+
+
+
+
+
+
 var all = [];
 // var allSpeakersAllPlays = {};
 
@@ -47,6 +66,16 @@ $(document).ready(function() {
   // });
   insertPlays();
   // getPlay('csvs/WintersTale.csv');
+
+  // allCsvs.forEach(function(play) {
+  //   $.ajax({
+  //     type: "POST",
+  //     url: "playTables",
+  //     data: {
+  //       play: play
+  //     }
+  //   });
+  // });
 });
 
 // To avoid asynch problems we'll just do it one bit at a time:
@@ -55,21 +84,22 @@ function insertPlays() {
     getPlay("csvs/" + play + ".csv");
     // console.log(title);
   });
+
+
+  // I mean what we really want is something that will chain a bunch of promises. When the first play gets through all its lines, then start going through the second play.
+
+  
+
+  // I'm just flummoxed at this point. Why is it only inserting all the lines for some of the plays?!
+
+  // getPlay("csvs/AllsWellThatEndsWell.csv");
+  // getPlay("csvs/TitusAndronicus.csv");
+  //
+  // getPlay("csvs/TamingoftheShrew.csv");
+  // getPlay("csvs/TheTempest.csv");
+  // getPlay("csvs/TroilesandCressida.csv");
+
 }
-
-function insertSpeakers() {
-
-}
-
-function insertLines() {
-
-}
-
-
-
-
-
-
 
 
 // One strategy would be to group up all the speakers for each play BEFORE going through lines. I don't know that this would add too much efficiency. Either way we have to look through the DB each time for that speaker's ID.
@@ -110,140 +140,38 @@ function getPlay(url) {
         allSpeakers.push(speaker);
       }
 
+      var firstDot = trueIndex.indexOf('.');
+      var lastDot = trueIndex.lastIndexOf('.');
+      var act = parseInt(trueIndex.slice(0, firstDot));
+      var scene = parseInt(trueIndex.slice(firstDot + 1, lastDot));
+      var lineNo = parseInt(trueIndex.slice(lastDot + 1));
+
       var info = {
         title: title,
         index: ind,
         trueIndex: trueIndex,
-        text: text,
+        act: isNaN(act) ? 0 : act,
+        scene: isNaN(scene) ? 0 : scene,
+        lineNo: isNaN(lineNo) ? 0 : lineNo,
+        lineText: text,
         speaker: speaker,
+        realTitle: url.slice(url.indexOf('/') + 1, url.indexOf('.'))
       };
+
+      // console.log(info);
 
       all.push(info);
 
-
-
-      // *****Just send info along with TITLE and send the whole array for each CSV to the server!
-      // Eh whatever, we can just go line by line, I don't think it matters too much either way. It will be more inefficient, but we only have to do it once.
-
-
-
-      // Dispatch with 'all' altogether and just Post directly to DB.
-
-
-      // $.ajax({
-      //   type: "POST",
-      //   url: "/postLine",
-      //   data: info
-      // }).done(function(res) {
-      //   console.log(res);
-      // }).catch(function(err) {
-      //   console.log(err);
-      // });
-
-
-
-      // $.ajax({
-      //   type: 'GET',
-      //   url: "/title/" + info.title,
-      // }).done(function(res1) {
-      //   // console.log(res);
-      //
-      //   // Do we have the play yet?
-      //   var playId;
-      //   var speakerId;
-      //
-      //   if (res1.length === 0) {
-      //     $.ajax({
-      //       type: 'POST',
-      //       url: "/title",
-      //       data: info.title
-      //     }).done(function(res2) {
-      //       console.log(res2);
-      //       playId = res2;
-      //
-      //       // we now have playId.
-      //       $.ajax({
-      //         type: 'GET',
-      //         url: "/speaker/" + info.speaker + "/" + playId
-      //       }).done(function(res3) {
-      //         console.log(res3);
-      //         if (res3.length === 0) {
-      //           $.ajax({
-      //             type: "POST",
-      //             url: "/speaker",
-      //             data: {
-      //               name: info.speaker,
-      //               play_id: playId
-      //             }
-      //           }).done(function(res4) {
-      //             speakerId = res4;
-      //           });
-      //         } else {
-      //           speakerId = res3[0].id;
-      //         }
-      //       });
-      //     });
-      //   } else {
-      //     console.log(res1);
-      //     playId = res1[0].id;
-      //
-      //     // we now have playId.
-      //     $.ajax({
-      //       type: 'GET',
-      //       url: "/speaker/" + info.speaker + "/" + playId
-      //     }).done(function(res5) {
-      //       console.log(res5);
-      //       if (res5.length === 0) {
-      //         $.ajax({
-      //           type: "POST",
-      //           url: "/speaker",
-      //           data: {
-      //             name: info.speaker,
-      //             play_id: playId
-      //           }
-      //         }).done(function(res6) {
-      //           speakerId = res6;
-      //         });
-      //       } else {
-      //         speakerId = res5[0].id;
-      //       }
-      //     });
-      //   }
-      //
-      //
-      //
-      //   // we now have SpeakerId.
-      //   console.log(playId, speakerId);
-      // });
-
-
-
-      // Wow, truly a wildly inefficient way to solve this problem: (save each name for each line...and check it against DB of plays. Damn).
-      // Post all speakers: Note, must be *inside* the forEach.
-      // $.ajax({
-      //   type: "GET",
-      //   url: "title/" + title
-      // }).done(function(taco) {
-      //   console.log(taco);
-      //   var playId = taco[0].id;
-      //   $.ajax({
-      //     type: "POST",
-      //     url: "speakerNames",
-      //     data: {
-      //       // that's really weird -- this being global (almost) made this save blanks for speaker names???
-      //       speaker: speaker,
-      //       playId: playId
-      //     }
-      //   }).done(function(allo) {
-      //     console.log(allo);
-      //   }).catch(function(err) {
-      //     console.log(err);
-      //   });
-      // }).catch(function(err) {
-      //   console.log(err);
-      // });
-
-
+      // POST LINES TO DB:
+      $.ajax({
+          type: "POST",
+          url: "allLines",
+          data: info
+        }).done(function(taco) {
+          // console.log(taco);
+        }).catch(function(err) {
+          console.log(err);
+        });
 
 
     }); // end forEach over lines
