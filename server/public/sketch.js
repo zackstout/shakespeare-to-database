@@ -3,7 +3,7 @@ function setup() {
 
   $.ajax({
     type: "GET",
-    url: "/onePlay/KingLear"
+    url: "/onePlay/RichardIII"
   }).done(function(res) {
     console.log(res);
 

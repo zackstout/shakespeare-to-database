@@ -61,11 +61,8 @@ var all = [];
 // var allSpeakersAllPlays = {};
 
 $(document).ready(function() {
-  // allCsvs.forEach(function(play) {
-  //   getPlay("csvs/" + play + ".csv");
-  // });
+
   insertPlays();
-  // getPlay('csvs/WintersTale.csv');
 
 
   // This, at least, works:
@@ -98,12 +95,6 @@ function insertPlays() {
   // Yeah, ended up brute forcing it.... By changing name every time. Yikes. At least we *seem* to have the DB now....
 
   // getPlay("csvs/WintersTale.csv");
-  // getPlay("csvs/TitusAndronicus.csv");
-  //
-  // getPlay("csvs/TamingoftheShrew.csv");
-  // getPlay("csvs/TheTempest.csv");
-  // getPlay("csvs/TroilesandCressida.csv");
-
 }
 
 
@@ -182,54 +173,9 @@ function getPlay(url) {
     }); // end forEach over lines
 
     console.log(all);
-    allSpeakers.splice(0, 2);
-
-    console.log(title, allSpeakers);
-
-
-    // do stuff with all:
-
-    // POST TITLES TO DB:
-    // $.ajax({
-    //   type: "POST",
-    //   url: "playTitles",
-    //   data: {
-    //     title: title
-    //   }
-    // }).done(function(taco) {
-    //   console.log(taco);
-    // }).catch(function(err) {
-    //   console.log(err);
-    // });
-
-    // POST SPEAKERS TO DB:
-    // allSpeakers.forEach(function(speaker) {
-    //   $.ajax({
-    //     type: "POST",
-    //     url: "speakerNames",
-    //     data: {
-    //       title: title,
-    //       name: speaker
-    //     }
-    //   }).done(function(taco) {
-    //     console.log(taco);
-    //   }).catch(function(err) {
-    //     console.log(err);
-    //   });
-    // });
-
-
-
-
-
-
-
-
 
     // do not forget to clear out:
     all = [];
-    allSpeakers = [];
-
 
   }).catch(function(err) {
     console.log(err);
@@ -238,16 +184,6 @@ function getPlay(url) {
   // return title;
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
