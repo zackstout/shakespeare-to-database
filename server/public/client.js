@@ -67,6 +67,8 @@ $(document).ready(function() {
   insertPlays();
   // getPlay('csvs/WintersTale.csv');
 
+
+  // This, at least, works:
   // allCsvs.forEach(function(play) {
   //   $.ajax({
   //     type: "POST",
@@ -80,19 +82,22 @@ $(document).ready(function() {
 
 // To avoid asynch problems we'll just do it one bit at a time:
 function insertPlays() {
-  allCsvs.forEach(function(play) {
-    getPlay("csvs/" + play + ".csv");
-    // console.log(title);
-  });
+  // allCsvs.forEach(function(play) {
+  //   getPlay("csvs/" + play + ".csv");
+  //   // console.log(title);
+  // });
 
 
   // I mean what we really want is something that will chain a bunch of promises. When the first play gets through all its lines, then start going through the second play.
 
-  
+
 
   // I'm just flummoxed at this point. Why is it only inserting all the lines for some of the plays?!
 
-  // getPlay("csvs/AllsWellThatEndsWell.csv");
+
+  // Yeah, ended up brute forcing it.... By changing name every time. Yikes. At least we *seem* to have the DB now....
+
+  // getPlay("csvs/WintersTale.csv");
   // getPlay("csvs/TitusAndronicus.csv");
   //
   // getPlay("csvs/TamingoftheShrew.csv");
