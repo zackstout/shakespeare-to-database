@@ -1,9 +1,15 @@
 
 function setup() {
 
-  let div;
-
   function hover() {
+    this.style("background-color", "lightblue");
+  }
+
+  function unhover() {
+    this.style("background-color", this.color);
+  }
+
+  function click() {
     const text = this.html();
 
     $.ajax({
@@ -15,8 +21,6 @@ function setup() {
       }
     }).done(function(res) {
       console.log(res);
-
-
 
     }).catch(function(err) {
       console.log(err);
@@ -60,7 +64,8 @@ function setup() {
 
         // Problem -- this isn't keeping out pruning of quote marks, and deletes all internal punctuation:
         for (let i=0; i < line.wordObjs.length; i++) {
-          let span1 = createSpan(line.wordObjs[i].word + " ");
+          let span1 = createSpan(line.wordObjs[i].word);
+          let span2 = createSpan(" ");
           let color1;
           switch(line.wordObjs[i].result) {
             case -4: color1 = color(255, 0, 0); break;
@@ -75,7 +80,11 @@ function setup() {
           }
           span1.style("background-color", color1);
           span1.parent(par);
+          span2.parent(par);
+          span1.color = color1; // nice, this works
+          span1.mouseClicked(click);
           span1.mouseOver(hover);
+          span1.mouseOut(unhover);
           }
           prevSpeaker = line.speaker;
         });

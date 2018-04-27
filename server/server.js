@@ -56,18 +56,24 @@ app.get('/onePlay/:title', function(req, res) {
           res.sendStatus(501);
         } else {
 
-          var wordObjs = [];
+          let wordObjs = [];
           result.rows.forEach(row => {
             // var result = sentiment.analyze('evil');
-            var words = row.lineText.split(/[\s.,;?]+/);
+            var words = row.lineText.split(/[\s.,;?]+/); // ignoring all punctuation -- but we'll need it.
+
+            // words = words.match(/[^"]+/).join(""); // hopefully getting rid of quote marks
             // row.words = words;
             var wordObj = {};
             words.forEach(word => {
+              if (word.length > 0) {
+                // console.log(word);
+                word = word.match(/[^"]+/) === null ? '' : word.match(/[^"]+/).join("");
+              }
               var result = sentiment.analyze(word);
               wordObj.word = word;
               wordObj.result = result.score;
               wordObjs.push(wordObj);
-              wordObj = {}; // not sure if necessary.
+              wordObj = {}; // not sure if necessary. Might just overwrite properties automatically.
             });
 
             // Attach the array to the row to send to client:
