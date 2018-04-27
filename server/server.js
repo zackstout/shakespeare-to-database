@@ -22,6 +22,32 @@ var config = {
   idleTimeoutMillis: 30000
 };
 
+
+
+// TESTING REVERSE IMAGE SEARCH API:
+var incan_client = require("node-incandescent-client").client;
+
+var client = new incan_client('7420', '746353d0e1b737204b6f13f5fdb49bc6');
+
+app.get('/imageRev', function(req, res) {
+  client.addImageUrl('https://www.almanac.com/sites/default/files/styles/primary_image_in_article/public/images/carrots.jpg?itok=_nIMWR5y');
+
+  client.assemble();
+
+  client.sendRequest(function(projectId) {
+  	console.log(projectId);
+
+  	client.getResults(projectId, function(data) {
+  		console.log(data);
+      res.send(data);
+  	});
+  });
+});
+
+
+
+
+
 var pool = new pg.Pool(config);
 
 // now we have to think:
@@ -42,7 +68,7 @@ app.get('/onePlay/:title', function(req, res) {
     if (err) {
       console.log(err);
     } else {
-      var queryText = 'SELECT * FROM "' + req.params.title + '" ORDER BY act, scene, "lineNo";'; // Odd, if lineNo not in quotes, it reads it as all-lowercase
+      var queryText = 'SELECT * FROM "' + req.params.title + '" ORDER BY act, scene, "lineNo" LIMIT 500;'; // Odd, if lineNo not in quotes, it reads it as all-lowercase
       db.query(queryText, [], function (errorMakingQuery, result) {
         done();
         if (errorMakingQuery) {
