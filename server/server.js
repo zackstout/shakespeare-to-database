@@ -11,6 +11,10 @@ var sentiment = new Sentiment();
 var result = sentiment.analyze('shadow');
 console.log(result);
 
+// var positivity = require('Sentimental').positivity;
+//
+//
+// console.log(positivity("Node is very super most highly excellent"));
 
 // var csv = require('fast-csv');
 
@@ -25,24 +29,24 @@ var config = {
 
 
 // TESTING REVERSE IMAGE SEARCH API:
-var incan_client = require("node-incandescent-client").client;
-
-var client = new incan_client('7420', '746353d0e1b737204b6f13f5fdb49bc6');
-
-app.get('/imageRev', function(req, res) {
-  client.addImageUrl('https://www.almanac.com/sites/default/files/styles/primary_image_in_article/public/images/carrots.jpg?itok=_nIMWR5y');
-
-  client.assemble();
-
-  client.sendRequest(function(projectId) {
-  	console.log(projectId);
-
-  	client.getResults(projectId, function(data) {
-  		console.log(data);
-      res.send(data);
-  	});
-  });
-});
+// var incan_client = require("node-incandescent-client").client;
+//
+// var client = new incan_client('7420', '746353d0e1b737204b6f13f5fdb49bc6');
+//
+// app.get('/imageRev', function(req, res) {
+//   client.addImageUrl('https://www.almanac.com/sites/default/files/styles/primary_image_in_article/public/images/carrots.jpg?itok=_nIMWR5y');
+//
+//   client.assemble();
+//
+//   client.sendRequest(function(projectId) {
+//   	console.log(projectId);
+//
+//   	client.getResults(projectId, function(data) {
+//   		console.log(data);
+//       res.send(data);
+//   	});
+//   });
+// });
 
 
 
