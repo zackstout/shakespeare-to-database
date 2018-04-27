@@ -1,29 +1,23 @@
 
 function setup() {
 
-  // $.ajax({
-  //   type: "GET",
-  //   url: "/imageRev"
-  // }).done(function(resp) {
-  //   console.log(resp);
-  // }).catch(function(err) {
-  //   console.log(err);
-  // });
-
   let div;
 
   function hover() {
     const text = this.html();
-    
+
     $.ajax({
       type: "GET",
-      url: "https://wordsapiv1.p.mashape.com/words/example",
+      url: "https://wordsapiv1.p.mashape.com/words/" + text,
       headers: {
         "X-Mashape-Key": 'VJa8iy7VStmshL7HEX9YzgWHp1B8p1yqGkzjsnkGWHCKc68TRj',
         "X-Mashape-Host": 'wordsapiv1.p.mashape.com'
       }
     }).done(function(res) {
       console.log(res);
+
+
+
     }).catch(function(err) {
       console.log(err);
     });
@@ -31,13 +25,10 @@ function setup() {
 
 
   $('#subPlay').on('click', function() {
-
-
     var val = $('#playName').val();
 
     // $('body').empty();
     // div.remove();
-
 
     $.ajax({
       type: "GET",
