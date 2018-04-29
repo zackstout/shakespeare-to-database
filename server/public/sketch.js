@@ -23,13 +23,38 @@ function drawChart(arr) {
   ctx.lineTo(canvas.width, maxHuns*canvas.height/(maxHuns + 1));
   ctx.stroke();
 
+  // Accounting for each play's max/min sentiment level:
+  var min = Math.min.apply(null, arr);
+  var max = Math.max.apply(null, arr);
+  console.log(min, max);
+
+  var maxBound, minBound;
+  for (var k=max; k<50 + max; k++) {
+    if (k % 50 === 0) {
+      maxBound = k;
+      break;
+    }
+  }
+  for (var j=min; j>min - 50; j--) {
+    if (j % 50 === 0) {
+      minBound = j;
+      break;
+    }
+  }
+  console.log(maxBound, minBound);
+
   // Trace path of sentiment with series of circles:
   for (var i=0; i < arr.length; i++) {
     var x = i * canvas.width / arr.length;
-    const sentimentRange = (maxHuns + 1) * 100;
-    const relativeHeight = maxHuns * 100 - arr[i];
+
+    const sentimentRange = maxBound - minBound;
+    const relativeHeight = maxBound - arr[i];
     const absoluteHeight = relativeHeight * canvas.height / sentimentRange;
-    // var y = absoluteHeight;
+
+    // const sentimentRange = (maxHuns + 1) * 100;
+    // const relativeHeight = maxHuns * 100 - arr[i];
+    // const absoluteHeight = relativeHeight * canvas.height / sentimentRange;
+
     ctx.beginPath();
     // ctx.noStroke();
     ctx.fillStyle = 'green';
