@@ -10,7 +10,63 @@ $(window).scroll(function() {
   }
 });
 
+function drawChart(arr) {
+  const maxHuns = 7;
+  var canvas = document.getElementById('chart'); // odd, couldn't use jQuery syntax here...
+  var ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'lightblue';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw x-axis:
+  ctx.beginPath();
+  ctx.moveTo(0, maxHuns*canvas.height/(maxHuns + 1));
+  ctx.lineTo(canvas.width, maxHuns*canvas.height/(maxHuns + 1));
+  ctx.stroke();
+
+  // Trace path of sentiment with series of circles:
+  for (var i=0; i < arr.length; i++) {
+    var x = i * canvas.width / arr.length;
+    const sentimentRange = (maxHuns + 1) * 100;
+    const relativeHeight = maxHuns * 100 - arr[i];
+    const absoluteHeight = relativeHeight * canvas.height / sentimentRange;
+    // var y = absoluteHeight;
+    ctx.beginPath();
+    // ctx.noStroke();
+    ctx.fillStyle = 'green';
+    ctx.arc(x, absoluteHeight, 2, 0, 2*PI);
+    ctx.fill();
+    // if (i % 100 == 0) console.log(arr[i]);
+  }
+}
+
+function getSentiment(play) {
+  $.ajax({
+    type: "GET",
+    url: "/playWords/" + play
+  }).done(function(res) {
+    console.log(res);
+    let totalSentiment = 0;
+    let totalSentiments = [];
+
+    res.forEach(row => {
+      row.wordObjs.forEach(word => {
+        totalSentiment += word.result;
+        totalSentiments.push(totalSentiment);
+        // console.log(totalSentiment);
+      });
+    });
+
+    console.log("words: ", totalSentiments.length);
+
+    drawChart(totalSentiments);
+  }).catch(function(err) {
+    console.log(err);
+  });
+}
+
 function getThreeHundredLines(play, num) {
+  // getSentiment(play);
+
   $.ajax({
     type: "GET",
     url: "/onePlay/" + play + '/' + num
@@ -21,6 +77,7 @@ function getThreeHundredLines(play, num) {
 
     let prevSpeaker = '';
     // div = createDiv();
+    let totalSentiment = 0;
 
     res.forEach(line => {
       // Is there a new speaker?
@@ -64,6 +121,10 @@ function getThreeHundredLines(play, num) {
         span1.mouseClicked(click);
         span1.mouseOver(hover);
         span1.mouseOut(unhover);
+
+        // OOOh this will only get first 100 lines...
+        totalSentiment += line.wordObjs[i].result;
+        // console.log(totalSentiment);
       }
       prevSpeaker = line.speaker;
     });
@@ -73,6 +134,7 @@ function getThreeHundredLines(play, num) {
   });
 }
 
+// Helper UI functions:
 function hover() {
   this.style("background-color", "lightblue");
 }
@@ -106,6 +168,7 @@ function setup() {
   noCanvas();
   div.class("word");
 
+  // New play button:
   $('#subPlay').on('click', function() {
     var val = $('#playName').val();
 
@@ -115,9 +178,14 @@ function setup() {
     // $('body').empty();
     // div.remove();
 
-    getThreeHundredLines(val, i);
+
+    // To display lines:
+    // getThreeHundredLines(val, i);
+
+    getSentiment(val);
   });
 
+  // Search button:
   $('#subSearch').on('click', function() {
     var searchVal = $('#search').val();
     var play = $('#playName').val();
@@ -125,6 +193,20 @@ function setup() {
     $.ajax({
       type: "GET",
       url: "searchPlay/" + searchVal + '/' + play
+    }).done(function(res) {
+      console.log(res);
+    }).catch(function(err) {
+      console.log(err);
+    });
+  });
+
+  $('#subSpeakSearch').on('click', function() {
+    var searchVal = $('#speakSearch').val();
+    var play = $('#playName').val();
+
+    $.ajax({
+      type: "GET",
+      url: "searchSpeakPlay/" + searchVal + '/' + play
     }).done(function(res) {
       console.log(res);
     }).catch(function(err) {

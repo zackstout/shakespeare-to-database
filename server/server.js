@@ -63,6 +63,69 @@ app.get('/searchPlay/:val/:play', function(req, res) {
   });
 });
 
+app.get('/searchSpeakPlay/:val/:play', function(req, res) {
+  pool.connect(function(err, db, done) {
+    if (err) {
+      console.log(err);
+    } else {
+      var queryText = 'SELECT * FROM "' + req.params.play + '" WHERE "speaker" ~ $1 ORDER BY act, scene, "lineNo";';
+      db.query(queryText, [req.params.val], function (errorMakingQuery, result) {
+        done();
+        if (errorMakingQuery) {
+          console.log('Error with country GET', errorMakingQuery);
+          res.sendStatus(501);
+        } else {
+          // console.log(result);
+          res.send(result.rows);
+          // res.sendStatus(201);
+        }
+      });
+    }
+  });
+});
+
+// Damn this is insanely fast, for getting the sentiment of each word in the play...
+app.get('/playWords/:play', function(req, res) {
+  pool.connect(function(err, db, done) {
+    if (err) {
+      console.log(err);
+    } else {
+      var queryText = 'SELECT * FROM "' + req.params.play + '" ORDER BY act, scene, "lineNo";'; // Odd, if lineNo not in quotes, it reads it as all-lowercase
+      db.query(queryText, [], function (errorMakingQuery, result) {
+        done();
+        if (errorMakingQuery) {
+          console.log('Error with country GET', errorMakingQuery);
+          res.sendStatus(501);
+        } else {
+          // console.log(result);
+          let wordObjs = [];
+          result.rows.forEach(row => {
+            var words = row.lineText.split(/[\s.,;?]+/); // ignoring all punctuation -- but we'll need it.
+
+            var wordObj = {};
+            words.forEach(word => {
+              if (word.length > 0) {
+                word = word.match(/[^"]+/) === null ? '' : word.match(/[^"]+/).join("");
+              }
+              var result = sentiment.analyze(word);
+              wordObj.word = word;
+              wordObj.result = result.score;
+              wordObjs.push(wordObj);
+              wordObj = {}; // not sure if necessary. Might just overwrite properties automatically.
+            });
+
+            // Attach the array to the row to send to client:
+            row.wordObjs = wordObjs;
+            wordObjs = [];
+          });
+
+          res.send(result.rows);
+        }
+      });
+    }
+  });
+});
+
 
 // This solution (passing in /:num) won't work for multiple users, I fear:
 app.get('/onePlay/:title/:num', function(req, res) {
