@@ -17,12 +17,6 @@ function drawChart(arr) {
   ctx.fillStyle = 'lightblue';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Draw x-axis:
-  ctx.beginPath();
-  ctx.moveTo(0, maxHuns*canvas.height/(maxHuns + 1));
-  ctx.lineTo(canvas.width, maxHuns*canvas.height/(maxHuns + 1));
-  ctx.stroke();
-
   // Accounting for each play's max/min sentiment level:
   var min = Math.min.apply(null, arr);
   var max = Math.max.apply(null, arr);
@@ -42,6 +36,25 @@ function drawChart(arr) {
     }
   }
   console.log(maxBound, minBound);
+
+
+  // Draw x-axis:
+  ctx.beginPath();
+  // ctx.moveTo(0, maxHuns*canvas.height/(maxHuns + 1));
+  // ctx.lineTo(canvas.width, maxHuns*canvas.height/(maxHuns + 1));
+
+  // needed this condition to deal with cases where negative value is higher, like Richard III:
+  const absMax = Math.abs(maxBound) > Math.abs(minBound) ? maxBound : minBound; // must be better way to write this
+  const absMin = Math.abs(maxBound) < Math.abs(minBound) ? maxBound : minBound; // must be better way to write this
+  const posToNeg = Math.abs(absMax / absMin); // so if min is -150, max is 200, as with King Lear, we have 4/3: 4 positive segments to 3 negative ones.
+  console.log(posToNeg);
+
+  const ratio = Math.abs(maxBound) / (Math.abs(maxBound) + Math.abs(minBound));
+  const axisHeight = canvas.height * ratio;
+  ctx.moveTo(0, axisHeight);
+  ctx.lineTo(canvas.width, axisHeight);
+  ctx.stroke();
+
 
   // Trace path of sentiment with series of circles:
   for (var i=0; i < arr.length; i++) {
