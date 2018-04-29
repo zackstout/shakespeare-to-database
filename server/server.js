@@ -43,13 +43,15 @@ var pool = new pg.Pool(config);
 
 
 
-app.get('/onePlay/:title', function(req, res) {
+app.get('/onePlay/:title/:num', function(req, res) {
   pool.connect(function(err, db, done) {
     if (err) {
       console.log(err);
     } else {
-      var queryText = 'SELECT * FROM "' + req.params.title + '" ORDER BY act, scene, "lineNo" LIMIT 500;'; // Odd, if lineNo not in quotes, it reads it as all-lowercase
-      db.query(queryText, [], function (errorMakingQuery, result) {
+      const limit = 100;
+      console.log("I: ", req.params.num);
+      var queryText = 'SELECT * FROM "' + req.params.title + '" ORDER BY act, scene, "lineNo" LIMIT $1 OFFSET $2;'; // Odd, if lineNo not in quotes, it reads it as all-lowercase
+      db.query(queryText, [limit, limit * req.params.num], function (errorMakingQuery, result) {
         done();
         if (errorMakingQuery) {
           console.log('Error with country GET', errorMakingQuery);
@@ -58,15 +60,11 @@ app.get('/onePlay/:title', function(req, res) {
 
           let wordObjs = [];
           result.rows.forEach(row => {
-            // var result = sentiment.analyze('evil');
             var words = row.lineText.split(/[\s.,;?]+/); // ignoring all punctuation -- but we'll need it.
 
-            // words = words.match(/[^"]+/).join(""); // hopefully getting rid of quote marks
-            // row.words = words;
             var wordObj = {};
             words.forEach(word => {
               if (word.length > 0) {
-                // console.log(word);
                 word = word.match(/[^"]+/) === null ? '' : word.match(/[^"]+/).join("");
               }
               var result = sentiment.analyze(word);

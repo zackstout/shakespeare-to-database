@@ -1,0 +1,9 @@
+
+.word {
+  position: absolute;
+  left: -400px;
+  top: -200px;
+  background-color: teal;
+  height: 400px;
+  width: 300px;
+}
