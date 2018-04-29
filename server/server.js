@@ -42,7 +42,29 @@ var pool = new pg.Pool(config);
 
 
 
+app.get('/searchPlay/:val/:play', function(req, res) {
+  pool.connect(function(err, db, done) {
+    if (err) {
+      console.log(err);
+    } else {
+      var queryText = 'SELECT * FROM "' + req.params.play + '" WHERE "lineText" ~ $1 ORDER BY act, scene, "lineNo";';
+      db.query(queryText, [req.params.val], function (errorMakingQuery, result) {
+        done();
+        if (errorMakingQuery) {
+          console.log('Error with country GET', errorMakingQuery);
+          res.sendStatus(501);
+        } else {
+          // console.log(result);
+          res.send(result.rows);
+          // res.sendStatus(201);
+        }
+      });
+    }
+  });
+});
 
+
+// This solution (passing in /:num) won't work for multiple users, I fear:
 app.get('/onePlay/:title/:num', function(req, res) {
   pool.connect(function(err, db, done) {
     if (err) {

@@ -1,12 +1,13 @@
 
 let i = 0;
 
+// Thanks StackOverflow:
 $(window).scroll(function() {
-   if($(window).scrollTop() + $(window).height() > $(document).height() - 5) {
-       console.log("at bottom...");
-       var val = $('#playName').val(); // this should really be part of the function
-       getThreeHundredLines(val, i);
-   }
+  if($(window).scrollTop() + $(window).height() > $(document).height() - 5) {
+    console.log("at bottom...");
+    var val = $('#playName').val(); // this should really be part of the function
+    getThreeHundredLines(val, i);
+  }
 });
 
 function getThreeHundredLines(play, num) {
@@ -63,13 +64,13 @@ function getThreeHundredLines(play, num) {
         span1.mouseClicked(click);
         span1.mouseOver(hover);
         span1.mouseOut(unhover);
-        }
-        prevSpeaker = line.speaker;
-      });
-
-    }).catch(function(err) {
-      console.log(err);
+      }
+      prevSpeaker = line.speaker;
     });
+
+  }).catch(function(err) {
+    console.log(err);
+  });
 }
 
 function hover() {
@@ -105,17 +106,31 @@ function setup() {
   noCanvas();
   div.class("word");
 
-
-
   $('#subPlay').on('click', function() {
     var val = $('#playName').val();
 
-    i = 0;
+    i = 0; // reset this to 0 whenever user submits a new play.
+    // Need to figure out how to empty old play out:
+
     // $('body').empty();
     // div.remove();
+
     getThreeHundredLines(val, i);
+  });
 
+  $('#subSearch').on('click', function() {
+    var searchVal = $('#search').val();
+    var play = $('#playName').val();
+
+    $.ajax({
+      type: "GET",
+      url: "searchPlay/" + searchVal + '/' + play
+    }).done(function(res) {
+      console.log(res);
+    }).catch(function(err) {
+      console.log(err);
     });
+  });
 
 
-  }
+}
