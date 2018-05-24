@@ -11,4 +11,7 @@ Once and for all converting those CSVs we scraped into a SQL database.
 - [ ] Let user search for a given pattern of text in the play; display all filtered results (with speakers).
 - [ ] Let user filter all scenes involving any combination of characters.
 - [x] A chart to represent changing overall sentiment as the play progresses.
-- [ ] Still need to refine chart based on min/max sentiment of the play in question. 
+- [x] Still need to refine chart based on min/max sentiment of the play in question.
+- [ ] The labels are going to be a bit involved, if we want to show where act divisions occur.
+- [ ] Could also likely make sentiment analysis more sophisticated by parsing by chunks or clauses.
+- [ ] Bring in [WordsAPI](https://www.wordsapi.com/).

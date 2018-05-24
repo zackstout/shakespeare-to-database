@@ -11,7 +11,7 @@ $(window).scroll(function() {
 });
 
 function drawChart(arr) {
-  const maxHuns = 7;
+  const maxHuns = 7; // don't think we're using this anymore
   var canvas = document.getElementById('chart'); // odd, couldn't use jQuery syntax here...
   var ctx = canvas.getContext('2d');
   ctx.fillStyle = 'lightblue';
@@ -75,6 +75,7 @@ function drawChart(arr) {
     ctx.fill();
     // if (i % 100 == 0) console.log(arr[i]);
   }
+
 }
 
 function getSentiment(play) {
@@ -103,7 +104,7 @@ function getSentiment(play) {
 }
 
 function getThreeHundredLines(play, num) {
-  // getSentiment(play);
+  getSentiment(play);
 
   $.ajax({
     type: "GET",
@@ -218,9 +219,9 @@ function setup() {
 
 
     // To display lines:
-    // getThreeHundredLines(val, i);
+    getThreeHundredLines(val, i);
 
-    getSentiment(val);
+    // getSentiment(val);
   });
 
   // Search button:
