@@ -84,6 +84,27 @@ app.get('/searchSpeakPlay/:val/:play', function(req, res) {
   });
 });
 
+app.get('/fullSearch/:val/:play/:word', function(req, res) {
+  pool.connect(function(err, db, done) {
+    if (err) {
+      console.log(err);
+    } else {
+      var queryText = 'SELECT * FROM "' + req.params.play + '" WHERE "speaker" ~ $1 AND "lineText" ~ $2 ORDER BY act, scene, "lineNo";';
+      db.query(queryText, [req.params.val, req.params.word], function (errorMakingQuery, result) {
+        done();
+        if (errorMakingQuery) {
+          console.log('Error with country GET', errorMakingQuery);
+          res.sendStatus(501);
+        } else {
+          // console.log(result);
+          res.send(result.rows);
+          // res.sendStatus(201);
+        }
+      });
+    }
+  });
+});
+
 // Damn this is insanely fast, for getting the sentiment of each word in the play...
 app.get('/playWords/:play', function(req, res) {
   pool.connect(function(err, db, done) {
@@ -102,6 +123,8 @@ app.get('/playWords/:play', function(req, res) {
           result.rows.forEach(row => {
             var words = row.lineText.split(/[\s.,;?]+/); // ignoring all punctuation -- but we'll need it.
 
+            // IDEA: do a manual "split": loop through all characters, keeping track of current word. If you run into a punctuation mark, push current word and clear it out, and then add the punctuation mark to that word.
+            
             var wordObj = {};
             words.forEach(word => {
               if (word.length > 0) {

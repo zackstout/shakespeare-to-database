@@ -11,7 +11,7 @@ $(window).scroll(function() {
 });
 
 function drawChart(arr, markers) {
-  console.log(arr);
+  // console.log(arr);
   const maxHuns = 7; // don't think we're using this anymore
   var canvas = document.getElementById('chart'); // odd, couldn't use jQuery syntax here...
   var ctx = canvas.getContext('2d');
@@ -21,7 +21,7 @@ function drawChart(arr, markers) {
   // Accounting for each play's max/min sentiment level:
   var min = Math.min.apply(null, arr);
   var max = Math.max.apply(null, arr);
-  console.log(min, max);
+  // console.log(min, max);
 
   var maxBound, minBound;
   for (var k=max; k<50 + max; k++) {
@@ -105,11 +105,16 @@ function getSentiment(play) {
       }
       prevAct = row.act;
       count++;
-      row.wordObjs.forEach(word => {
-        totalSentiment += word.result;
-        totalSentiments.push(totalSentiment);
-        // console.log(totalSentiment);
-      });
+
+      // This does work:
+      // if (row.speaker == 'MACBETH') {
+        row.wordObjs.forEach(word => {
+          totalSentiment += word.result;
+          totalSentiments.push(totalSentiment);
+          // console.log(totalSentiment);
+        });
+      // }
+
     });
     counts.splice(0, 1);
 
@@ -118,7 +123,7 @@ function getSentiment(play) {
     actMarkers.three = counts[1] / count;
     actMarkers.four = counts[2] / count;
     actMarkers.five = counts[3] / count;
-    console.log(actMarkers);
+    // console.log(actMarkers);
 
     console.log("words: ", totalSentiments.length);
 
@@ -129,6 +134,7 @@ function getSentiment(play) {
 }
 
 function getThreeHundredLines(play, num) {
+  // only need to do the first time -- should fix:
   getSentiment(play);
 
   $.ajax({
@@ -162,7 +168,7 @@ function getThreeHundredLines(play, num) {
       // This seems to be too much for it: we need to be more efficient.
       // One idea is to do the on-scroll load more idea of Twitter and Facebook.
 
-      // Problem -- this isn't keeping out pruning of quote marks, and deletes all internal punctuation:
+      // PROBLEM -- this isn't keeping out pruning of quote marks, and deletes all internal punctuation:
       for (let i=0; i < line.wordObjs.length; i++) {
         let span1 = createSpan(line.wordObjs[i].word);
         let span2 = createSpan(" ");
@@ -237,7 +243,8 @@ function setup() {
     var val = $('#playName').val();
 
     i = 0; // reset this to 0 whenever user submits a new play.
-    // Need to figure out how to empty old play out:
+
+    // PROBLEM: Need to figure out how to empty old play out:
 
     // $('body').empty();
     // div.remove();
@@ -271,6 +278,21 @@ function setup() {
     $.ajax({
       type: "GET",
       url: "searchSpeakPlay/" + searchVal + '/' + play
+    }).done(function(res) {
+      console.log(res);
+    }).catch(function(err) {
+      console.log(err);
+    });
+  });
+
+  $('#fullSearch').on('click', function() {
+    var searchVal = $('#speakSearch').val();
+    var play = $('#playName').val();
+    var word = $('#search').val();
+
+    $.ajax({
+      type: "GET",
+      url: "fullSearch/" + searchVal + '/' + play + '/' + word
     }).done(function(res) {
       console.log(res);
     }).catch(function(err) {
