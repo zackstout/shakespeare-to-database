@@ -10,7 +10,8 @@ $(window).scroll(function() {
   }
 });
 
-function drawChart(arr) {
+function drawChart(arr, markers) {
+  console.log(arr);
   const maxHuns = 7; // don't think we're using this anymore
   var canvas = document.getElementById('chart'); // odd, couldn't use jQuery syntax here...
   var ctx = canvas.getContext('2d');
@@ -55,6 +56,14 @@ function drawChart(arr) {
   ctx.lineTo(canvas.width, axisHeight);
   ctx.stroke();
 
+  // Draw ticks for act-changes:
+  for (var key in markers) {
+    ctx.beginPath();
+    ctx.moveTo(markers[key] * canvas.width, axisHeight - 10);
+    ctx.lineTo(markers[key] * canvas.width, axisHeight + 10);
+    ctx.stroke();
+  }
+
 
   // Trace path of sentiment with series of circles:
   for (var i=0; i < arr.length; i++) {
@@ -86,18 +95,34 @@ function getSentiment(play) {
     console.log(res);
     let totalSentiment = 0;
     let totalSentiments = [];
+    let prevAct = 0;
+    let count = 0;
+    let counts = [];
 
     res.forEach(row => {
+      if (row.act !== prevAct) {
+        counts.push(count);
+      }
+      prevAct = row.act;
+      count++;
       row.wordObjs.forEach(word => {
         totalSentiment += word.result;
         totalSentiments.push(totalSentiment);
         // console.log(totalSentiment);
       });
     });
+    counts.splice(0, 1);
+
+    var actMarkers = {};
+    actMarkers.two = counts[0] / count;
+    actMarkers.three = counts[1] / count;
+    actMarkers.four = counts[2] / count;
+    actMarkers.five = counts[3] / count;
+    console.log(actMarkers);
 
     console.log("words: ", totalSentiments.length);
 
-    drawChart(totalSentiments);
+    drawChart(totalSentiments, actMarkers);
   }).catch(function(err) {
     console.log(err);
   });
