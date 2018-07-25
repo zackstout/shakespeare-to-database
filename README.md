@@ -15,3 +15,6 @@ Once and for all converting those CSVs we scraped into a SQL database.
 - [ ] The labels are going to be a bit involved, if we want to show where act divisions occur.
 - [ ] Could also likely make sentiment analysis more sophisticated by parsing by chunks or clauses.
 - [ ] Bring in [WordsAPI](https://www.wordsapi.com/).
+- [ ] Hook up to NLTK via Python.
+- [ ] Show frequency distribution of a word/phrase/speaker along with list of all relevant contexts.
+- [ ] 

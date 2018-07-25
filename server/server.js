@@ -18,6 +18,45 @@ console.log(result);
 
 // var csv = require('fast-csv');
 
+var allCsvs = [
+  'AllsWellThatEndsWell',
+  'AntonyandCleopatra',
+  'AsYouLikeIt',
+  'ComedyofErrors',
+  'Coriolanus',
+  'Cymbeline',
+  'Hamlet',
+  'HenryIV,part1',
+  'HenryIV,part2',
+  'HenryV',
+  'HenryVI,part1',
+  'HenryVI,part2',
+  'HenryVIII',
+  'JuliusCaesar',
+  'KingJohn',
+  'KingLear',
+  'LovesLaboursLost',
+  'Macbeth',
+  'MeasureforMeasure',
+  'MerchantofVenice',
+  'MerryWivesofWindsor',
+  'MidsummerNightsDream',
+  'MuchAdoAboutNothing',
+  'Othello',
+  'Pericles',
+  'RichardII',
+  'RichardIII',
+  'RomeoandJuliet',
+  'TamingoftheShrew',
+  'TheTempest',
+  'TimonofAthens',
+  'TitusAndronicus',
+  'TroilesandCressida',
+  'TwelfthNight',
+  'TwoGentlemenofVerona',
+  'WintersTale'
+];
+
 var config = {
   database: 'shakes',
   host: 'localhost',
@@ -39,6 +78,69 @@ var pool = new pg.Pool(config);
 // No, we're not overthinking it.
 // If speakers table contains the speaker (*constrained to this play*) then add line keyed to the speaker; OTHERWISE add speaker, and add line keyed to speaker.
 
+
+
+// Function to convert database to better format: plays_names table and plays_text table.
+
+// This worked:
+// pool.connect(function(err, db, done) {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     for (let i=0; i < allCsvs.length; i++) {
+//       var queryText = "INSERT INTO plays_playname (title) VALUES ($1)";
+//       db.query(queryText, [allCsvs[i]], function (errorMakingQuery, result) {
+//         done();
+//         if (errorMakingQuery) {
+//           console.log('Error with country GET', errorMakingQuery);
+//         }
+//       });
+//     }
+//   }
+// });
+
+
+// This does not work...yet:
+pool.connect(function(err, db, done) {
+  if (err) {
+    console.log(err);
+  } else {
+    for (let i=0; i < allCsvs.length; i++) {
+      var my_csv = allCsvs[i];
+      // Ahhh yes need the WRAPPING parentheses as well!
+      (function(csv) {
+        // Needed the quotes around table name:
+        // **** AND YOU CANNOT USE BLING SYNTAX WITH THAT:
+        var queryText = 'SELECT * FROM "' + csv + '";';
+        db.query(queryText, [], function (errorMakingQuery, result) {
+          // console.log(result.rows[0].title);
+          console.log("TEXT: ", result.rows[10].lineText);
+
+          // UH OH: ALL THE IDS ARE BOUND TO 37, THE LAST ID....
+          var queryText2 = "SELECT id FROM plays_playname WHERE title=$1"
+          db.query(queryText2, [csv], function(err2, res) {
+            console.log("ID: ", res.rows[0].id);
+
+            var queryText3 = 'INSERT INTO plays_playtext (act, scene, lineno, speaker, text, play_id) VALUES ($1, $2, $3, $4, $5, $6);';
+            db.query(queryText3, [], function(err3, res3) {
+              console.log("res3: ", res3);
+              done();
+              if (err3) console.log(err3);
+            });
+            done();
+            if (err) console.log(err2);
+          })
+          done();
+          if (errorMakingQuery) console.log(errorMakingQuery);
+        });
+      })(my_csv);
+
+    }
+  }
+});
+
+
+// Let's just create some text to play with:
 
 
 
@@ -68,6 +170,7 @@ app.get('/searchSpeakPlay/:val/:play', function(req, res) {
     if (err) {
       console.log(err);
     } else {
+      // Not clear why i did this both ways... Oh probably because of quote marks.
       var queryText = 'SELECT * FROM "' + req.params.play + '" WHERE "speaker" ~ $1 ORDER BY act, scene, "lineNo";';
       db.query(queryText, [req.params.val], function (errorMakingQuery, result) {
         done();
@@ -124,7 +227,7 @@ app.get('/playWords/:play', function(req, res) {
             var words = row.lineText.split(/[\s.,;?]+/); // ignoring all punctuation -- but we'll need it.
 
             // IDEA: do a manual "split": loop through all characters, keeping track of current word. If you run into a punctuation mark, push current word and clear it out, and then add the punctuation mark to that word.
-            
+
             var wordObj = {};
             words.forEach(word => {
               if (word.length > 0) {

@@ -10,6 +10,8 @@ $(window).scroll(function() {
   }
 });
 
+
+// First of 3 main functions:
 function drawChart(arr, markers) {
   // console.log(arr);
   const maxHuns = 7; // don't think we're using this anymore
@@ -24,20 +26,19 @@ function drawChart(arr, markers) {
   // console.log(min, max);
 
   var maxBound, minBound;
-  for (var k=max; k<50 + max; k++) {
+  for (var k=max; k < 50 + max; k++) {
     if (k % 50 === 0) {
       maxBound = k;
       break;
     }
   }
-  for (var j=min; j>min - 50; j--) {
+  for (var j=min; j > min - 50; j--) {
     if (j % 50 === 0) {
       minBound = j;
       break;
     }
   }
   console.log(maxBound, minBound);
-
 
   // Draw x-axis:
   ctx.beginPath();
@@ -64,7 +65,6 @@ function drawChart(arr, markers) {
     ctx.stroke();
   }
 
-
   // Trace path of sentiment with series of circles:
   for (var i=0; i < arr.length; i++) {
     var x = i * canvas.width / arr.length;
@@ -87,6 +87,9 @@ function drawChart(arr, markers) {
 
 }
 
+
+
+// Second of 3 main functions:
 function getSentiment(play) {
   $.ajax({
     type: "GET",
@@ -133,6 +136,9 @@ function getSentiment(play) {
   });
 }
 
+
+
+// Third of 3 main functions:
 function getThreeHundredLines(play, num) {
   // only need to do the first time -- should fix:
   getSentiment(play);
@@ -203,6 +209,9 @@ function getThreeHundredLines(play, num) {
     console.log(err);
   });
 }
+
+
+
 
 // Helper UI functions:
 function hover() {
